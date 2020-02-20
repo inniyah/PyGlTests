@@ -14,8 +14,6 @@ from mgl2d.app import App
 from mgl2d.graphics.shader_program import ShaderProgram
 from mgl2d.graphics.screen import Screen
 from mgl2d.graphics.texture import Texture
-from mgl2d.math.matrix4 import Matrix4
-from mgl2d.math.vector2 import Vector2
 
 import pywavefront
 
@@ -58,7 +56,14 @@ class MeshDrawable:
             self._setup_default_shader()
         self.shader = self._default_shader
 
-        self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/uv_sphere.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/uv_sphere.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-V3F.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-C3F_V3F.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-N3F_V3F.obj')
+        self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_V3F.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_C3F_V3F.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_N3F_V3F.obj')
+
         self.meshes = pywavefront.Wavefront(self.meshes_path)
 
     def __del__(self):
@@ -190,6 +195,8 @@ class MeshDrawable:
         if not vertex_format:
             raise ValueError("Vertex format {} not supported".format(material.vertex_format))
 
+        print(f"{material.triangle_count}, {material.vertex_format} ({vertex_format}): {material.vertices}")
+
         if textures_enabled:
             # Fall back to ambient texture if no diffuse
             texture = material.texture or material.texture_ambient
@@ -219,31 +226,40 @@ class MeshDrawable:
 
 
 
+        #~ glBindVertexArray(self._vao)
 
+        #~ # Vertices
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
+        #~ _vertices = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1], dtype=np.float32)
+        #~ _vertices = np.array(material.vertices, dtype=np.float32)
+        #~ glBufferData(GL_ARRAY_BUFFER, _vertices.nbytes, _vertices, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(0)
+        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
 
+        #~ # Texture coordinates
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
+        #~ _texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
+        #~ glBufferData(GL_ARRAY_BUFFER, _texture_coordinates.nbytes, _texture_coordinates, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(1)
+        #~ glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
 
+        #~ glBindVertexArray(0)
 
 
         glBindVertexArray(self._vao)
-
-        # Vertices
         glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        _vertices = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1], dtype=np.int16)
-        glBufferData(GL_ARRAY_BUFFER, _vertices.nbytes, _vertices, GL_STATIC_DRAW)
+        #~ bufdata = np.array(material.vertices, dtype=np.float32)
+        bufdata = np.array([0, 0, 0,  0, 0,  0, 1, 0,  0, 1,  1, 1, 0,  1, 1,  1, 0, 1,  1, 0], dtype=np.float32)
+        glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 3, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
-
-        # Texture coordinates
-        glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
-        _texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        glBufferData(GL_ARRAY_BUFFER, _texture_coordinates.nbytes, _texture_coordinates, GL_STATIC_DRAW)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(1)
-        glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
-
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
         glBindVertexArray(0)
 
+
         glBindVertexArray(self._vao)
-        glDrawArrays(GL_TRIANGLE_FAN, 0, len(_vertices))
+        glDrawArrays(GL_TRIANGLE_FAN, 0, bufdata.size)
         glBindVertexArray(0)
 
 
