@@ -13,8 +13,9 @@ import pyrr
 
 from mgl2d.app import App
 from mgl2d.graphics.shader_program import ShaderProgram
-from mgl2d.graphics.screen import Screen
-from mgl2d.graphics.texture import Texture
+
+from screen import Screen
+from texture import Texture
 
 import pywavefront
 
