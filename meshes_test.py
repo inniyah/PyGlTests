@@ -36,19 +36,19 @@ class MeshDrawable:
 
         # Vertices
         self._vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        self._vertices = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        glBufferData(GL_ARRAY_BUFFER, self._vertices.nbytes, self._vertices, GL_STATIC_DRAW)
-        glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
+        #~ self._vertices = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
+        #~ glBufferData(GL_ARRAY_BUFFER, self._vertices.nbytes, self._vertices, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(0)
+        #~ glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
 
         # Texture coordinates
         self._vbo_uvs = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
-        self._texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        glBufferData(GL_ARRAY_BUFFER, self._texture_coordinates.nbytes, self._texture_coordinates, GL_STATIC_DRAW)
-        glEnableVertexAttribArray(1)
-        glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
+        #~ self._texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
+        #~ glBufferData(GL_ARRAY_BUFFER, self._texture_coordinates.nbytes, self._texture_coordinates, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(1)
+        #~ glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
 
         glBindVertexArray(0)
 
@@ -143,7 +143,8 @@ class MeshDrawable:
         transform_matrix = rot_x * rot_y
 
         projection_matrix = pyrr.Matrix44.identity()
-        projection_matrix = pyrr.Matrix44.from_x_rotation(self._angle)
+        projection_matrix *= pyrr.Matrix44.from_scale(np.array([.5, .5, .5], dtype=np.float32))
+        projection_matrix *= pyrr.Matrix44.from_x_rotation(self._angle)
 
         if self._shader is not None:
             self._shader.bind()
@@ -246,23 +247,64 @@ class MeshDrawable:
         #~ glBindVertexArray(0)
 
 
+        #~ glBindVertexArray(self._vao)
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
+        #~ #bufdata = np.array(material.vertices, dtype=np.float32)
+        #~ bufdata = np.array([
+            #~ 0, 0, 0,  0, 0,
+            #~ 0, 1, 0,  0, 1,
+            #~ 1, 1, 0,  1, 1,
+            #~ 1, 0, 1,  1, 0,
+        #~ ], dtype=np.float32)
+        #~ glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(0)
+        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
+        #~ glEnableVertexAttribArray(1)
+        #~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
+        #~ glBindVertexArray(0)
+
+        #~ glBindVertexArray(self._vao)
+        #~ glDrawArrays(GL_TRIANGLE_FAN, 0, 1 + bufdata.size // 5)
+        #~ glBindVertexArray(0)
+
+        from OpenGL.arrays import vbo
+
         glBindVertexArray(self._vao)
-        glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        #~ bufdata = np.array(material.vertices, dtype=np.float32)
-        bufdata = np.array([0, 0, 0,  0, 0,  0, 1, 0,  0, 1,  1, 1, 0,  1, 1,  1, 0, 1,  1, 0], dtype=np.float32)
-        glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
+        #glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
+        bufdata = vbo.VBO(np.ascontiguousarray([
+            0, 0,  0, 0, 0,
+            0, 1,  0, 1, 0,
+            1, 1,  1, 1, 0,
+            1, 0,  1, 0, 1,
+        ], dtype=np.float32))
+        #glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(1)
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
+        bufdata.bind()
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(8))
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(0))
         glBindVertexArray(0)
-
 
         glBindVertexArray(self._vao)
-        glDrawArrays(GL_TRIANGLE_FAN, 0, bufdata.size)
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
+        bufdata.unbind()
         glBindVertexArray(0)
 
 
+        #~ glBindVertexArray(self._vao)
+        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
+        #~ bufdata = np.array(material.vertices, dtype=np.float32)
+        #~ print(bufdata)
+        #~ glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
+        #~ glEnableVertexAttribArray(0)
+        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
+        #~ glEnableVertexAttribArray(1)
+        #~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
+        #~ glBindVertexArray(0)
+
+        #~ glBindVertexArray(self._vao)
+        #~ glDrawArrays(GL_TRIANGLES, 0, 1 + bufdata.size // 5)
+        #~ glBindVertexArray(0)
 
 
 
