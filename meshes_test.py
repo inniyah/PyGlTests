@@ -3,6 +3,7 @@
 import math
 import numpy as np
 from OpenGL.GL import *
+from OpenGL.arrays import vbo
 
 import ctypes
 import os
@@ -196,7 +197,7 @@ class MeshDrawable:
         if not vertex_format:
             raise ValueError("Vertex format {} not supported".format(material.vertex_format))
 
-        print(f"{material.triangle_count}, {material.vertex_format} ({vertex_format}): {material.vertices}")
+        #print(f"{material.triangle_count}, {material.vertex_format} ({vertex_format}): {material.vertices}")
 
         if textures_enabled:
             # Fall back to ambient texture if no diffuse
@@ -228,56 +229,28 @@ class MeshDrawable:
 
 
         #~ glBindVertexArray(self._vao)
-
-        #~ # Vertices
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        #~ _vertices = np.array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1], dtype=np.float32)
-        #~ _vertices = np.array(material.vertices, dtype=np.float32)
-        #~ glBufferData(GL_ARRAY_BUFFER, _vertices.nbytes, _vertices, GL_STATIC_DRAW)
+        #~ bufdata = vbo.VBO(np.ascontiguousarray([
+            #~ 0, 0,  0, 0, 0,
+            #~ 0, 1,  0, 1, 0,
+            #~ 1, 1,  1, 1, 0,
+            #~ 1, 0,  1, 0, 1,
+        #~ ], dtype=np.float32))
         #~ glEnableVertexAttribArray(0)
-        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-
-        #~ # Texture coordinates
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
-        #~ _texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        #~ glBufferData(GL_ARRAY_BUFFER, _texture_coordinates.nbytes, _texture_coordinates, GL_STATIC_DRAW)
         #~ glEnableVertexAttribArray(1)
-        #~ glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
-
-        #~ glBindVertexArray(0)
-
-
-        #~ glBindVertexArray(self._vao)
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        #~ #bufdata = np.array(material.vertices, dtype=np.float32)
-        #~ bufdata = np.array([
-            #~ 0, 0, 0,  0, 0,
-            #~ 0, 1, 0,  0, 1,
-            #~ 1, 1, 0,  1, 1,
-            #~ 1, 0, 1,  1, 0,
-        #~ ], dtype=np.float32)
-        #~ glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
-        #~ glEnableVertexAttribArray(0)
-        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        #~ glEnableVertexAttribArray(1)
-        #~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
+        #~ bufdata.bind()
+        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(8))
+        #~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 20, ctypes.c_void_p(0))
         #~ glBindVertexArray(0)
 
         #~ glBindVertexArray(self._vao)
-        #~ glDrawArrays(GL_TRIANGLE_FAN, 0, 1 + bufdata.size // 5)
+        #~ glDrawArrays(GL_TRIANGLE_FAN, 0, bufdata.size // 5)
+        #~ bufdata.unbind()
         #~ glBindVertexArray(0)
 
-        from OpenGL.arrays import vbo
+
 
         glBindVertexArray(self._vao)
-        #glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        bufdata = vbo.VBO(np.ascontiguousarray([
-            0, 0,  0, 0, 0,
-            0, 1,  0, 1, 0,
-            1, 1,  1, 1, 0,
-            1, 0,  1, 0, 1,
-        ], dtype=np.float32))
-        #glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
+        bufdata = vbo.VBO(np.ascontiguousarray(material.vertices, dtype=np.float32))
         glEnableVertexAttribArray(0)
         glEnableVertexAttribArray(1)
         bufdata.bind()
@@ -286,25 +259,10 @@ class MeshDrawable:
         glBindVertexArray(0)
 
         glBindVertexArray(self._vao)
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
+        glDrawArrays(GL_TRIANGLES, 0, bufdata.size // 5)
         bufdata.unbind()
         glBindVertexArray(0)
 
-
-        #~ glBindVertexArray(self._vao)
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        #~ bufdata = np.array(material.vertices, dtype=np.float32)
-        #~ print(bufdata)
-        #~ glBufferData(GL_ARRAY_BUFFER, bufdata.nbytes, bufdata, GL_STATIC_DRAW)
-        #~ glEnableVertexAttribArray(0)
-        #~ glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        #~ glEnableVertexAttribArray(1)
-        #~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3*4, None)
-        #~ glBindVertexArray(0)
-
-        #~ glBindVertexArray(self._vao)
-        #~ glDrawArrays(GL_TRIANGLES, 0, 1 + bufdata.size // 5)
-        #~ glBindVertexArray(0)
 
 
 
