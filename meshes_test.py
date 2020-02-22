@@ -12,10 +12,10 @@ import sys
 import pyrr
 
 from mgl2d.app import App
-from mgl2d.graphics.shader_program import ShaderProgram
 
 from screen import Screen
-from texture import Texture
+from texture import Texture, load_texture
+from shaders import ShaderProgram, get_shader_program
 
 import pywavefront
 
@@ -28,9 +28,6 @@ class MeshDrawable:
     _default_shader = None
 
     def __init__(self, pos_x=0.0, pos_y=0.0, size_x=100, size_y=100, scale_x=1, scale_y=1):
-        self._texture = None
-        self._shader = None
-
         self._angle = 0.
 
         self._vao = glGenVertexArrays(1)
@@ -38,19 +35,9 @@ class MeshDrawable:
 
         # Vertices
         self._vbo = glGenBuffers(1)
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo)
-        #~ self._vertices = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        #~ glBufferData(GL_ARRAY_BUFFER, self._vertices.nbytes, self._vertices, GL_STATIC_DRAW)
-        #~ glEnableVertexAttribArray(0)
-        #~ glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
 
         # Texture coordinates
         self._vbo_uvs = glGenBuffers(1)
-        #~ glBindBuffer(GL_ARRAY_BUFFER, self._vbo_uvs)
-        #~ self._texture_coordinates = np.array([0, 0, 0, 1, 1, 1, 1, 0], dtype=np.int16)
-        #~ glBufferData(GL_ARRAY_BUFFER, self._texture_coordinates.nbytes, self._texture_coordinates, GL_STATIC_DRAW)
-        #~ glEnableVertexAttribArray(1)
-        #~ glVertexAttribPointer(1, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, None)
 
         glBindVertexArray(0)
 
@@ -77,22 +64,6 @@ class MeshDrawable:
         self._vao = None
 
     @property
-    def texture(self):
-        return self._texture
-
-    @texture.setter
-    def texture(self, texture):
-        self._texture = texture
-
-    @property
-    def shader(self):
-        return self._shader
-
-    @shader.setter
-    def shader(self, shader):
-        self._shader = shader
-
-    @property
     def angle(self):
         return self._angle
 
@@ -103,42 +74,12 @@ class MeshDrawable:
         #self._is_transform_invalid = True
 
     def _setup_default_shader(self):
-        vertex_shader = """
-        #version 330 core
-
-        uniform mat4 model;
-        uniform mat4 projection;
-
-        layout(location=0) in vec3 vertex;
-        layout(location=1) in vec2 uv;
-
-        out vec2 uv_out;
-
-        void main() {
-            vec4 vertex_world = model * vec4(vertex, 1);
-            gl_Position = projection * vertex_world;
-            uv_out = uv;
-        }
-        """
-
-        fragment_shader = """
-        #version 330 core
-
-        in vec2 uv_out;
-        out vec4 color;
-
-        uniform sampler2D tex;
-
-        void main() {
-            color = texture(tex, uv_out);
-        }
-        """
-
-        self._default_shader = ShaderProgram.from_sources(vert_source=vertex_shader, frag_source=fragment_shader)
+        self._default_shader = get_shader_program('C3F_V3F')
 
     def draw(self, screen):
-        if self._texture is not None:
-            self._texture.bind()
+        texture = load_texture('data/texture.png')
+        if texture is not None:
+            texture.bind()
 
         rot_x = pyrr.Matrix44.from_x_rotation(0.0)
         rot_y = pyrr.Matrix44.from_y_rotation(0.0)
@@ -148,18 +89,19 @@ class MeshDrawable:
         projection_matrix *= pyrr.Matrix44.from_scale(np.array([.5, .5, .5], dtype=np.float32))
         projection_matrix *= pyrr.Matrix44.from_x_rotation(self._angle)
 
-        if self._shader is not None:
-            self._shader.bind()
-            self._shader.set_uniform_matrix4('model', transform_matrix)
-            self._shader.set_uniform_matrix4('projection', projection_matrix)
+        shader = get_shader_program('C3F_V3F')
+        if shader is not None:
+            shader.bind()
+            shader.set_uniform_matrix4('model', transform_matrix)
+            shader.set_uniform_matrix4('projection', projection_matrix)
 
         self.draw_meshes(self.meshes)
 
-        if self._texture is not None:
-            self._texture.unbind()
+        if texture is not None:
+            texture.unbind()
 
-        if self._shader is not None:
-            self._shader.unbind()
+        if shader is not None:
+            shader.unbind()
 
     def draw_meshes(self, instance, lighting_enabled=True, textures_enabled=True):
         # Draw Wavefront instance
@@ -265,11 +207,7 @@ class MeshDrawable:
         glBindVertexArray(0)
 
 
-
-
-
 mesh = MeshDrawable()
-mesh.texture = Texture.load_from_file('data/texture.png')
 
 def draw_frame(screen):
     mesh.draw(screen)
@@ -277,5 +215,8 @@ def draw_frame(screen):
 def update_frame(delta_ms):
     mesh.angle += delta_ms / 1000
     pass
+
+print(f"Textures: {load_texture.cache_info()}")
+print(f"Shader Programs: {get_shader_program.cache_info()}")
 
 app.run(main_screen, draw_frame, update_frame)

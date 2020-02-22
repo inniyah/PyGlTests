@@ -3,6 +3,7 @@ import logging
 import numpy
 from OpenGL.GL import *
 from PIL import Image
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +95,8 @@ class Texture(object):
 
     def _next_power_of_two(self, n):
         return 2 ** (n - 1).bit_length()
+
+
+@lru_cache(maxsize=None)  # Boundless cache
+def load_texture(path):
+    return Texture.load_from_file(path)
