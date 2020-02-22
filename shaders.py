@@ -62,12 +62,20 @@ class ShaderProgram(object):
         program = ShaderProgram()
         if vert_source is not None:
             program.attach_shader(source_code=vert_source, shader_type=ShaderType.VERTEX)
+            log_txt = glGetProgramInfoLog(program._program_id)
+            if log_txt: print(f"Vertex shader program log: {log_txt}")
         if geom_source is not None:
             program.attach_shader(source_code=geom_source, shader_type=ShaderType.GEOMETRY)
+            log_txt = glGetProgramInfoLog(program._program_id)
+            if log_txt: print(f"Geometric shader program log: {log_txt}")
         if frag_source is not None:
             program.attach_shader(source_code=frag_source, shader_type=ShaderType.FRAGMENT)
+            log_txt = glGetProgramInfoLog(program._program_id)
+            if log_txt: print(f"Fragment shader program log: {log_txt}")
 
         program.link()
+        log_txt = glGetProgramInfoLog(program._program_id)
+        if log_txt: print(f"Shader program log: {log_txt}")
         return program
 
     def link(self):
@@ -154,27 +162,25 @@ def shader_program_C3F_V3F():
         uniform mat4 projection;
 
         layout(location=0) in vec3 vertex;
-        layout(location=1) in vec3 color;
+        layout(location=1) in vec3 color_in;
 
-        out vec3 col_out;
+        out vec3 color_out;
 
         void main() {
             vec4 vertex_world = model * vec4(vertex, 1);
             gl_Position = projection * vertex_world;
-            col_out = color;
+            color_out = color_in;
         }
     """
 
     fragment_shader = """
         #version 330 core
 
-        in vec3 col_out;
+        in vec3 color_out;
         out vec4 color;
 
-        uniform sampler2D tex;
-
         void main() {
-            color = texture(tex, uv_out);
+            color = vec4(color_out, 0.5);
         }
     """
 
