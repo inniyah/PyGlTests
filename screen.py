@@ -1,5 +1,6 @@
 import logging
 
+import math
 import numpy
 import sdl2
 from OpenGL.GL import *
@@ -35,7 +36,10 @@ class Screen(object):
         video.SDL_GL_SetAttribute(video.SDL_GL_CONTEXT_MINOR_VERSION, gl_minor)
         video.SDL_GL_SetAttribute(video.SDL_GL_CONTEXT_PROFILE_MASK, video.SDL_GL_CONTEXT_PROFILE_CORE)
         self._context = sdl2.SDL_GL_CreateContext(self._window)
-        self._projection_matrix = Matrix44.identity()
+
+        self._x_angle = math.pi / 4
+        self._y_angle = math.pi / 4
+        self._projection_matrix_needs_refresh = True
 
         if alpha_blending:
             glEnable(GL_BLEND)
@@ -65,6 +69,14 @@ class Screen(object):
 
     @property
     def projection_matrix(self):
+        if self._projection_matrix_needs_refresh:
+            projection_matrix = Matrix44.identity()
+            projection_matrix *= Matrix44.from_scale(numpy.array([.25, .25, .0001], dtype=numpy.float32))
+            projection_matrix *= Matrix44.from_x_rotation(self._x_angle)
+            projection_matrix *= Matrix44.from_y_rotation(self._y_angle)
+            self._projection_matrix = projection_matrix
+            self._projection_matrix = projection_matrix
+            self._projection_matrix_needs_refresh = False
         return self._projection_matrix
 
     @property
@@ -74,6 +86,24 @@ class Screen(object):
     @full_screen.setter
     def full_screen(self, value):
         sdl2.SDL_SetWindowFullscreen(self._window, value)
+
+    @property
+    def x_angle(self):
+        return self._x_angle
+
+    @property
+    def y_angle(self):
+        return self._y_angle
+
+    @x_angle.setter
+    def x_angle(self, value):
+        self._x_angle = value
+        self._projection_matrix_needs_refresh = True
+
+    @y_angle.setter
+    def y_angle(self, value):
+        self._y_angle = value
+        self._projection_matrix_needs_refresh = True
 
     def close(self):
         sdl2.SDL_GL_DeleteContext(self._context)

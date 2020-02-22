@@ -55,6 +55,8 @@ class ShaderProgram(object):
             program.attach_shader_from_file(file_name=frag_file, shader_type=ShaderType.FRAGMENT)
 
         program.link()
+        log_txt = glGetProgramInfoLog(program._program_id)
+        if log_txt: print(f"Shader program log: {log_txt}")
         return program
 
     @staticmethod
@@ -62,16 +64,10 @@ class ShaderProgram(object):
         program = ShaderProgram()
         if vert_source is not None:
             program.attach_shader(source_code=vert_source, shader_type=ShaderType.VERTEX)
-            log_txt = glGetProgramInfoLog(program._program_id)
-            if log_txt: print(f"Vertex shader program log: {log_txt}")
         if geom_source is not None:
             program.attach_shader(source_code=geom_source, shader_type=ShaderType.GEOMETRY)
-            log_txt = glGetProgramInfoLog(program._program_id)
-            if log_txt: print(f"Geometric shader program log: {log_txt}")
         if frag_source is not None:
             program.attach_shader(source_code=frag_source, shader_type=ShaderType.FRAGMENT)
-            log_txt = glGetProgramInfoLog(program._program_id)
-            if log_txt: print(f"Fragment shader program log: {log_txt}")
 
         program.link()
         log_txt = glGetProgramInfoLog(program._program_id)

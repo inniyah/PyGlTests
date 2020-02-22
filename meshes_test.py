@@ -28,8 +28,6 @@ class MeshDrawable:
     _default_shader = None
 
     def __init__(self, pos_x=0.0, pos_y=0.0, size_x=100, size_y=100, scale_x=1, scale_y=1):
-        self._angle = 0.
-
         self._vao = glGenVertexArrays(1)
         glBindVertexArray(self._vao)
 
@@ -43,9 +41,9 @@ class MeshDrawable:
 
         # self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/uv_sphere.obj')
         #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-V3F.obj')
-        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-C3F_V3F.obj')
+        self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-C3F_V3F.obj')
         # self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-N3F_V3F.obj')
-        self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_V3F.obj')
+        #self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_V3F.obj')
         # self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_C3F_V3F.obj')
         # self.meshes_path = os.path.join(os.path.dirname(__file__), 'data/box/box-T2F_N3F_V3F.obj')
 
@@ -59,37 +57,27 @@ class MeshDrawable:
         glDeleteVertexArrays(1, self._vao)
         self._vao = None
 
-    @property
-    def angle(self):
-        return self._angle
-
-    @angle.setter
-    def angle(self, value):
-        self._angle = value
-        #self._m_rotation = Matrix4.rotate_z(self._angle)
-        #self._is_transform_invalid = True
-
     def draw(self, screen):
-        self.draw_meshes(self.meshes)
+        self.draw_meshes(screen, self.meshes)
 
-    def draw_meshes(self, instance, lighting_enabled=True, textures_enabled=True):
+    def draw_meshes(self, screen, instance, lighting_enabled=True, textures_enabled=True):
         # Draw Wavefront instance
         if isinstance(instance, pywavefront.Wavefront):
-            self.draw_materials(instance.materials, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
+            self.draw_materials(screen, instance.materials, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
         # Draw single material
         elif isinstance(instance, pywavefront.Material):
-            self.draw_material(instance, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
+            self.draw_material(screen, instance, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
         # Draw dict of materials
         elif isinstance(instance, dict):
-            self.draw_materials(instance, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
+            self.draw_materials(screen, instance, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
         else:
             raise ValueError("Cannot figure out how to draw: {}".format(instance))
 
-    def draw_materials(self, materials, lighting_enabled=True, textures_enabled=True):
+    def draw_materials(self, screen, materials, lighting_enabled=True, textures_enabled=True):
         for name, material in materials.items():
-            self.draw_material(material, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
+            self.draw_material(screen, material, lighting_enabled=lighting_enabled, textures_enabled=textures_enabled)
 
-    def draw_material(self, material, face=GL_FRONT_AND_BACK, lighting_enabled=True, textures_enabled=True):
+    def draw_material(self, screen, material, face=GL_FRONT_AND_BACK, lighting_enabled=True, textures_enabled=True):
         if material.gl_floats is None:
             material.gl_floats = (GLfloat * len(material.vertices))(*material.vertices)
             material.triangle_count = len(material.vertices) / material.vertex_size
@@ -132,10 +120,7 @@ class MeshDrawable:
         rot_y = pyrr.Matrix44.from_y_rotation(0.0)
         transform_matrix = rot_x * rot_y
 
-        projection_matrix = pyrr.Matrix44.identity()
-        projection_matrix *= pyrr.Matrix44.from_scale(np.array([.5, .5, .5], dtype=np.float32))
-        projection_matrix *= pyrr.Matrix44.from_x_rotation(self._angle)
-
+        projection_matrix = screen.projection_matrix
 
         try:
             _shader = get_shader_program(material.vertex_format)
@@ -196,7 +181,8 @@ def draw_frame(screen):
     mesh.draw(screen)
 
 def update_frame(delta_ms):
-    mesh.angle += delta_ms / 1000
+    #main_screen.x_angle += delta_ms / 1000
+    #main_screen.y_angle += delta_ms / 7777
     pass
 
 print(f"Textures: {load_texture.cache_info()}")
