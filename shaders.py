@@ -146,6 +146,40 @@ def shader_program_V3F():
 
     return ShaderProgram.from_sources(vert_source=vertex_shader, frag_source=fragment_shader)
 
+def shader_program_C3F_V3F():
+    vertex_shader = """
+        #version 330 core
+
+        uniform mat4 model;
+        uniform mat4 projection;
+
+        layout(location=0) in vec3 vertex;
+        layout(location=1) in vec3 color;
+
+        out vec3 col_out;
+
+        void main() {
+            vec4 vertex_world = model * vec4(vertex, 1);
+            gl_Position = projection * vertex_world;
+            col_out = color;
+        }
+    """
+
+    fragment_shader = """
+        #version 330 core
+
+        in vec3 col_out;
+        out vec4 color;
+
+        uniform sampler2D tex;
+
+        void main() {
+            color = texture(tex, uv_out);
+        }
+    """
+
+    return ShaderProgram.from_sources(vert_source=vertex_shader, frag_source=fragment_shader)
+
 def shader_program_T2F_V3F():
     vertex_shader = """
         #version 330 core
@@ -181,14 +215,14 @@ def shader_program_T2F_V3F():
     return ShaderProgram.from_sources(vert_source=vertex_shader, frag_source=fragment_shader)
 
 SHADER_PROGRAMS = {
-    'V3F': shader_program_V3F,
-    'C3F_V3F': shader_program_T2F_V3F,
-    #'N3F_V3F': GL_N3F_V3F,
-    #'T2F_V3F': GL_T2F_V3F,
-    # 'C3F_N3F_V3F': GL_C3F_N3F_V3F,  # Unsupported
-    #'T2F_C3F_V3F': GL_T2F_C3F_V3F,
-    #'T2F_N3F_V3F': GL_T2F_N3F_V3F,
-    # 'T2F_C3F_N3F_V3F': GL_T2F_C3F_N3F_V3F,  # Unsupported
+    'V3F':              shader_program_V3F,
+    'C3F_V3F':          shader_program_C3F_V3F,
+    #'N3F_V3F':          shader_program_N3F_V3F,
+    'T2F_V3F':          shader_program_T2F_V3F,
+    #'C3F_N3F_V3F':      shader_program_C3F_N3F_V3F,  # Unsupported
+    #'T2F_C3F_V3F':      shader_program_T2F_C3F_V3F,
+    #'T2F_N3F_V3F':      shader_program_T2F_N3F_V3F,
+    #'T2F_C3F_N3F_V3F':  shader_program_T2F_C3F_N3F_V3F,  # Unsupported
 }
 
 @lru_cache(maxsize=None)  # Boundless cache
