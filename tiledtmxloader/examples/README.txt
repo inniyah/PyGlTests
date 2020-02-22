@@ -2,7 +2,7 @@
 LICENSES
 
     - The map "001-1.tmx" and its tilesets are under the GPL2+ license!
-    - The examples itself are undder the "New BSD license"
+    - The examples itself are under the "New BSD license"
 
 
 

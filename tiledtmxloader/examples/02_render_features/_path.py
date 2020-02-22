@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -9,13 +10,7 @@ if not sys.argv[0]:
 else:
     appdir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-
-appdir = os.path.abspath(os.path.join(appdir, os.pardir, os.pardir))
+appdir = os.path.abspath(os.path.join(appdir, os.pardir, os.pardir, os.pardir))
 
 if not appdir in sys.path:
     sys.path.insert(0, appdir)
-
-
-
-
-

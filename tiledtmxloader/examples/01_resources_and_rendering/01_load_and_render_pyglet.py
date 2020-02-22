@@ -54,19 +54,17 @@ Versioning scheme based on: http://en.wikipedia.org/wiki/Versioning#Designating_
 """
 from __future__ import print_function
 
-
 __version__ = '1.0.0.0'
 
 # for easy comparison as in sys.version_info but digits only
-__version_info__ = tuple([int(d) for d in __version__.split('.')])
+# __version_info__ = tuple([int(d) for d in __version__.split('.')])
 
-__author__ = "DR0ID"
-__email__ = "dr0iddr0id {at} gmail [dot] com"
-__copyright__ = "DR0ID @ 2014"
-__credits__ = ["DR0ID"]  # list of contributors
-__maintainer__ = "DR0ID"
-__license__ = "New BSD license"
-
+# __author__ = "DR0ID"
+# __email__ = "dr0iddr0id {at} gmail [dot] com"
+# __copyright__ = "DR0ID @ 2014"
+# __credits__ = ["DR0ID"]  # list of contributors
+# __maintainer__ = "DR0ID"
+# __license__ = "New BSD license"
 
 import sys
 import os
@@ -184,7 +182,7 @@ def main():
     """
     args = sys.argv[1:]
     if len(args) < 1:
-        path_to_map = os.path.join(os.pardir, "001-1.tmx")
+        path_to_map = os.path.join(os.path.dirname(__file__), os.pardir, "001-1.tmx")
         print(("usage: python %s your_map.tmx\n\nUsing default map '%s'\n" % \
             (os.path.basename(__file__), path_to_map)))
     else:
@@ -204,4 +202,3 @@ if __name__ == '__main__':
     # p.sort_stats('time')
     # p.print_stats()
     main()
-

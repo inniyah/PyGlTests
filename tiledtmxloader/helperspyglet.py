@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -41,9 +42,9 @@ Minimal OpenGL used. (Less of a learning curve.)
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
 
-__revision__ = "$Rev$"
-__version__ = "3.0.0." + __revision__[6:-2]
-__author__ = 'DR0ID @ 2009-2011'
+# __revision__ = "$Rev: 132 $"
+# __version__ = "3.0.0." + __revision__[6:-2]
+# __author__ = 'DR0ID @ 2009-2011'
 
 
 #  -----------------------------------------------------------------------------
@@ -54,7 +55,7 @@ import os.path
 import copy
 
 import pyglet
-import tmxreader
+from . import tmxreader
 
 
 #  -----------------------------------------------------------------------------
@@ -319,5 +320,3 @@ if __name__ == '__main__':
         demo_pyglet(sys.argv[1])
     else:
         print(('Usage: python %s your_map.tmx' % os.path.basename(__file__)))
-
-

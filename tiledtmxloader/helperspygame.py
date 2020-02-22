@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -31,10 +32,9 @@ module there is a pygame specific loader and renderer.
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
 
-
-__revision__ = "$Rev$"
-__version__ = "3.0.0." + __revision__[6:-2]
-__author__ = 'DR0ID @ 2009-2011'
+# __revision__ = "$Rev: 132 $"
+# __version__ = "3.0.0." + __revision__[6:-2]
+# __author__ = 'DR0ID @ 2009-2011'
 
 
 #  -----------------------------------------------------------------------------
@@ -1133,6 +1133,12 @@ class RendererPygame(object):
         return (screen_x + self._render_cam_rect.x * layer.paralax_factor_x, \
                 screen_y + self._render_cam_rect.y * layer.paralax_factor_y)
 
+    def world_to_screen(self, layer, world_x, world_y):
+        """
+        Returns the screen location for given world coordinates and layer.
+        """
+        return (world_x - self._render_cam_rect.x * layer.paralax_factor_x, \
+                world_y - self._render_cam_rect.y * layer.paralax_factor_y)
 
 #  -----------------------------------------------------------------------------
 
@@ -1396,5 +1402,3 @@ class IsometricRendererPygame(RendererPygame):
         # (world_x + world_y) * layer.tileheight / 2.0))
         return ( (world_x - world_y) * layer.tilewidth / 2.0 + origin_x, \
                  (world_x + world_y) * layer.tileheight / 2.0)
-
-

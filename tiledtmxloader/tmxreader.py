@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -27,9 +28,9 @@ It loads the \*.tmx files produced by Tiled.
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
 
-__revision__ = "$Rev$"
-__version__ = "3.1.0." + __revision__[6:-2]
-__author__ = 'DR0ID @ 2009-2011'
+# __revision__ = "$Rev: 131 $"
+# __version__ = "3.1.0." + __revision__[6:-2]
+# __author__ = 'DR0ID @ 2009-2011'
 
 # import logging
 # #the following few lines are needed to use logging if this module used without
@@ -627,7 +628,7 @@ def decode_base64(in_str, string_encoding='latin-1'):
     :returns: decoded string
     """
     import base64
-    return base64.decodestring(in_str.encode(string_encoding))
+    return base64.decodebytes(in_str.encode(string_encoding))
 
 #  -----------------------------------------------------------------------------
 def decompress_gzip(in_str, string_encoding='latin-1'):
@@ -773,7 +774,13 @@ class TileMapParser(object):
         tile_gid = int(tile_set.firstgid) + int(tile_set_tile_node.attributes.get("id").nodeValue)
         tile = Tile(tile_gid)
         self._set_attributes(tile_set_tile_node, tile)
-        world_map.tiles[tile_gid].properties.update(tile.properties)
+        try:
+            world_map.tiles[tile_gid].properties.update(tile.properties)
+        except KeyError:
+            cell = Cell(tile_gid, tile_set)
+            cell.properties = dict(tile_set.properties)
+            world_map.tiles[tile_gid] = cell
+            world_map.tiles[tile_gid].properties.update(tile.properties)
         for node in self._get_nodes(tile_set_tile_node.childNodes, 'image'):
             self._build_tile_set_tile_image(node, tile)
         tile_set.tiles.append(tile)
@@ -806,7 +813,7 @@ class TileMapParser(object):
     def _build_world_map(self, world_node):
         world_map = TileMap()
         self._set_attributes(world_node, world_map)
-        if world_map.version != "1.0":
+        if world_map.version not in ["1.0", "1.1", "1.2"]:
             raise VersionError('this parser was made for maps of version 1.0, found version %s' % world_map.version)
         for node in self._get_nodes(world_node.childNodes, 'tileset'):
             self._build_tile_set(node, world_map)

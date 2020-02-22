@@ -1,28 +1,15 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
 TileMap loader for python for Tiled, a generic tile map editor
 from http://mapeditor.org/ .
 It loads the \*.tmx files produced by Tiled.
-
-
 """
-__all__ = ["tmxreader"]
 
 from . import tmxreader
-try:
-    from . import helperspygame
-    __all__.append("helperspygame")
-except Exception as e:
-    print("error loading helperspygame" + str(e))
-
-try:
-    from . import helperspyglet
-    __all__.append("helperspyglet")
-except Exception as e:
-    print("error loading helperspyglet" + str(e))
-
+from . import helperspygame
+from . import helperspyglet
 
 # Versioning scheme based on: http://en.wikipedia.org/wiki/Versioning#Designating_development_stage
 #
@@ -43,10 +30,8 @@ except Exception as e:
 #     * 1.2.3.0 instead of 1.2-r (commercial distribution)
 #     * 1.2.3.5 instead of 1.2-r5 (commercial distribution with many bug fixes)
 
-__revision__ = "$Rev$"
-__version__ = tmxreader.__version__
-__author__ = 'DR0ID @ 2009-2011'
-
+# __revision__ = "$Rev: 128 $"
+# __version__ = tmxreader.__version__
+# __author__ = 'DR0ID @ 2009-2011'
 
 #-------------------------------------------------------------------------------
-
